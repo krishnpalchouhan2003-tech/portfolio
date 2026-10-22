@@ -1,0 +1,127 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #07090f;
+  --color-panel: #0e1220;
+  --color-line: #1c2235;
+  --color-neon: #00e701;
+  --color-gold: #f5c542;
+  --color-loss: #ff3b5c;
+  --color-text: #e8ecf5;
+  --color-muted: #7c8499;
+  --font-display: "Big Shoulders Display", system-ui, sans-serif;
+  --font-body: "Manrope", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+html {
+  background: var(--color-ink);
+  color-scheme: dark;
+  overflow-x: clip;
+}
+
+body {
+  background: var(--color-ink);
+  color: var(--color-text);
+  font-family: var(--font-body);
+}
+
+::selection {
+  background: var(--color-neon);
+  color: var(--color-ink);
+}
+
+/* Film grain over everything so flat colors don't feel template-made */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.text-outline {
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgb(232 236 245 / 0.35);
+}
+
+/* Playing card faces */
+.card-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
+}
+
+.card-back-pattern {
+  background:
+    repeating-linear-gradient(45deg, rgb(245 197 66 / 0.18) 0 2px, transparent 2px 14px),
+    repeating-linear-gradient(-45deg, rgb(245 197 66 / 0.18) 0 2px, transparent 2px 14px),
+    #10131f;
+}
+
+/* Casino chip: striped edge, solid center */
+.chip {
+  border-radius: 9999px;
+  background: repeating-conic-gradient(var(--chip) 0 22.5deg, #f4f1e8 22.5deg 45deg);
+  box-shadow: 0 20px 40px rgb(0 0 0 / 0.55), inset 0 0 0 3px rgb(0 0 0 / 0.25);
+}
+.chip::after {
+  content: "";
+  position: absolute;
+  inset: 18%;
+  border-radius: 9999px;
+  background: var(--chip);
+  border: 2px dashed rgb(255 255 255 / 0.55);
+}
+
+/* Marquee */
+@keyframes marquee {
+  to { transform: translateX(-50%); }
+}
+.marquee {
+  animation: marquee var(--dur, 40s) linear infinite;
+}
+.marquee-rev {
+  animation-direction: reverse;
+}
+
+/* Odds flash */
+@keyframes flash-up {
+  0% { background: rgb(0 231 1 / 0.35); color: #00e701; }
+  100% { background: transparent; }
+}
+@keyframes flash-down {
+  0% { background: rgb(255 59 92 / 0.35); color: #ff3b5c; }
+  100% { background: transparent; }
+}
+.flash-up { animation: flash-up 1.2s ease-out; }
+.flash-down { animation: flash-down 1.2s ease-out; }
+
+@keyframes pulse-dot {
+  50% { opacity: 0.25; }
+}
+.live-dot { animation: pulse-dot 1.1s ease-in-out infinite; }
+
+/* Slot machine bulbs */
+@keyframes bulb {
+  0%, 100% { background: var(--color-gold); box-shadow: 0 0 10px var(--color-gold); }
+  50% { background: #3a3220; box-shadow: none; }
+}
+.bulb { animation: bulb 0.9s steps(1) infinite; }
+.bulb:nth-child(even) { animation-delay: 0.45s; }
+
+/* Ticket notches for the bet slip */
+.ticket-cut {
+  background:
+    radial-gradient(circle at 0 50%, var(--color-ink) 12px, transparent 13px),
+    radial-gradient(circle at 100% 50%, var(--color-ink) 12px, transparent 13px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee, .bulb, .live-dot { animation: none; }
+}
