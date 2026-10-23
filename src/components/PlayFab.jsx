@@ -9,7 +9,7 @@ export default function PlayFab() {
   const [covered, setCovered] = useState(false)
   useMotionValueEvent(scrollY, 'change', (y) => setPast(y > window.innerHeight * 0.6))
 
-  // stay out of the way on the games themselves and on the contact slip (it would sit on its links)
+  // stay out of the way on the bets intro, the games themselves and on the contact slip (it would sit on its links)
   useEffect(() => {
     const seen = new Map()
     const io = new IntersectionObserver(
@@ -19,7 +19,7 @@ export default function PlayFab() {
       },
       { threshold: 0.1 },
     )
-    for (const id of ['games', 'contact']) {
+    for (const id of ['bets', 'games', 'contact']) {
       const el = document.getElementById(id)
       if (el) io.observe(el)
     }

@@ -10,6 +10,9 @@ import Roulette from './components/Roulette'
 import HouseGames from './components/HouseGames'
 import BetSlip from './components/BetSlip'
 import PlayFab from './components/PlayFab'
+import Intro from './components/Intro'
+import Cursor from './components/Cursor'
+import PlaceBets from './components/PlaceBets'
 
 export default function App() {
   const reduce = useReducedMotion()
@@ -23,10 +26,13 @@ export default function App() {
         <Projects />
         <SlotSkills />
         <Roulette />
+        <PlaceBets />
         <HouseGames />
         <BetSlip />
       </main>
       <PlayFab />
+      <Intro />
+      <Cursor />
     </MotionConfig>
   )
   // Smooth scroll only for people who haven't asked for less motion

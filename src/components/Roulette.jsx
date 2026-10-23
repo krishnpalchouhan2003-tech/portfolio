@@ -25,7 +25,7 @@ function pocketPath(i) {
 
 function Wheel({ rotate, ball }) {
   return (
-    <div className="relative aspect-square w-[min(60vw,300px)] sm:w-[min(80vw,440px)]">
+    <div className="relative aspect-square w-[min(60vw,300px,30svh)] sm:w-[min(80vw,440px,45svh)] lg:w-[min(40vw,440px,70svh)]">
       <motion.svg viewBox="-210 -210 420 420" style={{ rotate }} className="h-full w-full will-change-transform" aria-hidden>
         <circle r="208" fill="#3b2412" stroke="#f5c542" strokeWidth="3" />
         {ORDER.map((n, i) => {
@@ -71,11 +71,11 @@ export default function Roulette() {
 
   return (
     <section id="experience" ref={ref} className="relative" style={{ height: `${experience.length * 100 + 60}vh` }}>
-      <div className="sticky top-0 flex h-svh flex-col items-center justify-center gap-6 overflow-hidden px-4 sm:px-8 lg:flex-row lg:gap-16">
+      <div className="sticky top-0 flex h-svh flex-col items-center justify-start gap-4 overflow-hidden px-4 pt-20 sm:px-8 lg:flex-row lg:justify-center lg:gap-16 lg:pt-0">
         <Wheel rotate={rotate} ball={ball} />
 
         <div className="w-full max-w-md">
-          <div className="mb-4 flex items-center justify-between font-mono text-xs uppercase tracking-widest text-muted">
+          <div className="mb-2 flex items-center justify-between font-mono sm:mb-4 text-xs uppercase tracking-widest text-muted">
             <span>Spin history</span>
             <span className="tabular-nums">
               {String(active + 1).padStart(2, '0')} / {String(experience.length).padStart(2, '0')}
@@ -90,9 +90,9 @@ export default function Roulette() {
               transition={{ duration: 0.4 }}
             >
               <div className="font-mono text-sm text-gold">{job.period}</div>
-              <h3 className="mt-2 font-display text-4xl font-black uppercase leading-[0.9] sm:text-6xl">{job.role}</h3>
+              <h3 className="mt-2 font-display text-3xl font-black uppercase leading-[0.9] sm:text-6xl">{job.role}</h3>
               <div className="mt-2 text-lg text-neon">{job.company}</div>
-              <ul className="mt-5 space-y-2 text-muted">
+              <ul className="mt-3 space-y-1.5 text-sm text-muted sm:mt-5 sm:space-y-2 sm:text-base">
                 {job.points.map((pt) => (
                   <li key={pt} className="flex gap-3">
                     <span className="text-loss">◆</span>
@@ -102,7 +102,7 @@ export default function Roulette() {
               </ul>
             </motion.div>
           </AnimatePresence>
-          <div className="mt-8 flex gap-2">
+          <div className="mt-5 flex gap-2 sm:mt-8">
             {experience.map((_, i) => (
               <span key={i} className={`h-1 flex-1 rounded-full transition-colors ${i <= active ? 'bg-neon' : 'bg-line'}`} />
             ))}

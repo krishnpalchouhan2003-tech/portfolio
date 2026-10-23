@@ -59,9 +59,8 @@ body::after {
 
 .card-back-pattern {
   background:
-    repeating-linear-gradient(45deg, rgb(245 197 66 / 0.18) 0 2px, transparent 2px 14px),
-    repeating-linear-gradient(-45deg, rgb(245 197 66 / 0.18) 0 2px, transparent 2px 14px),
-    #10131f;
+    repeating-linear-gradient(135deg, rgb(245 197 66 / 0.05) 0 1px, transparent 1px 7px),
+    radial-gradient(circle at 50% 30%, #1d2130, #07090f 75%);
 }
 
 /* Casino chip: striped edge, solid center */
@@ -122,6 +121,22 @@ body::after {
     radial-gradient(circle at 100% 50%, var(--color-ink) 12px, transparent 13px);
 }
 
+/* sections out of view stop their looping CSS animations */
+.paused .marquee,
+.paused .bulb {
+  animation-play-state: paused;
+}
+
+/* bulbs go wild while the slot shows a jackpot */
+.jackpot .bulb {
+  animation-duration: 0.25s;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .marquee, .bulb, .live-dot { animation: none; }
+}
+
+/* custom cursor replaces the native one (mouse only, see Cursor.jsx) */
+.custom-cursor, .custom-cursor * {
+  cursor: none !important;
 }

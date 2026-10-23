@@ -8,6 +8,7 @@ import {
   useTransform,
 } from 'motion/react'
 import { profile } from '../data'
+import { INTRO_DELAY } from './Intro'
 
 const chips = [
   { color: '#c8102e', size: 120, left: '8%', top: '18%', speed: 900, spin: 220 },
@@ -36,7 +37,7 @@ function Letters({ text, delay = 0 }) {
         className="inline-block"
         initial={{ y: '110%' }}
         animate={{ y: 0 }}
-        transition={{ duration: 0.9, delay: delay + i * 0.05, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 0.9, delay: INTRO_DELAY + delay + i * 0.05, ease: [0.22, 1, 0.36, 1] }}
       >
         {ch}
       </motion.span>
@@ -157,7 +158,7 @@ export default function Hero() {
         <motion.div
           initial={{ y: 120, opacity: 0, rotateZ: -12 }}
           animate={{ y: 0, opacity: 1, rotateZ: -4 }}
-          transition={{ duration: 1.2, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 1.2, delay: INTRO_DELAY + 0.5, ease: [0.22, 1, 0.36, 1] }}
           style={{ perspective: 1200 }}
           className="relative z-10"
         >
@@ -167,21 +168,22 @@ export default function Hero() {
             className="relative aspect-[5/7] w-[min(50vw,26svh,300px)] lg:w-[300px]"
           >
             {/* front */}
-            <div className="card-face border border-white/15 bg-[#f4f1e8] text-ink shadow-[0_40px_80px_rgb(0_0_0/0.6)]">
-              <div className="absolute left-4 top-3 text-center font-display leading-none">
-                <div className="text-4xl font-black">A</div>
-                <div className="text-2xl">♠</div>
+            {/* sizes in cqw (% of card width) so the card looks the same at every screen size */}
+            <div className="card-face @container border border-white/15 bg-[#f4f1e8] text-ink shadow-[0_40px_80px_rgb(0_0_0/0.6)]">
+              <div className="absolute left-[5cqw] top-[4cqw] text-center font-display leading-none text-[#c8102e]">
+                <div className="text-[12cqw] font-black">A</div>
+                <div className="text-[8cqw]">♥</div>
               </div>
-              <div className="absolute bottom-3 right-4 rotate-180 text-center font-display leading-none">
-                <div className="text-4xl font-black">A</div>
-                <div className="text-2xl">♠</div>
+              <div className="absolute bottom-[4cqw] right-[5cqw] rotate-180 text-center font-display leading-none text-[#c8102e]">
+                <div className="text-[12cqw] font-black">A</div>
+                <div className="text-[8cqw]">♥</div>
               </div>
-              <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
-                <div className="text-7xl leading-none">♠</div>
-                <div className="font-display text-3xl font-black uppercase leading-none">
+              <div className="flex h-full flex-col items-center justify-center gap-[3cqw] px-[14cqw] text-center">
+                <div className="text-[22cqw] leading-none text-[#c8102e]">♥</div>
+                <div className="font-display text-[11cqw] font-black uppercase leading-none">
                   {profile.first} {profile.last}
                 </div>
-                <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink/70">
+                <div className="font-mono text-[5.4cqw] font-semibold uppercase leading-snug tracking-[0.04em] text-[#c8102e]">
                   {profile.role} · {profile.domain}
                 </div>
               </div>
@@ -203,17 +205,29 @@ export default function Hero() {
               />
             </div>
 
-            {/* back */}
-            <div
-              className="card-face card-back-pattern flex items-center justify-center border border-gold/40"
-              style={{ transform: 'rotateY(180deg)' }}
-            >
-              <div className="rounded-full border-2 border-gold/70 bg-ink px-6 py-8 text-center">
-                <div className="font-display text-5xl font-black text-gold">{profile.initials}</div>
-                <div className="mt-1 font-mono text-[10px] uppercase tracking-widest text-gold/70">
-                  House edge: craft
+            {/* back: black VIP card, gold sheen follows the same tilt as the front */}
+            <div className="card-face card-back-pattern @container border border-gold/40" style={{ transform: 'rotateY(180deg)' }}>
+              <div className="absolute inset-[5cqw] flex flex-col items-center justify-center rounded-[3cqw] border border-gold/45 text-center">
+                <div className="font-mono text-[5cqw] tracking-[0.4em] text-gold/80">♠ ♥ ♣ ♦</div>
+                <div className="mt-[4cqw] bg-gradient-to-b from-[#fbe7a1] via-gold to-[#9c7413] bg-clip-text font-display text-[30cqw] font-black leading-none text-transparent">
+                  {profile.initials}
                 </div>
+                <div className="mt-[3cqw] flex items-center gap-[3cqw] font-mono text-[4.5cqw] uppercase tracking-[0.3em] text-gold">
+                  <span className="h-px w-[8cqw] bg-gold/60" />
+                  VIP
+                  <span className="h-px w-[8cqw] bg-gold/60" />
+                </div>
+                <div className="absolute bottom-[5cqw] font-mono text-[3.6cqw] uppercase tracking-[0.25em] text-muted">High roller · Since 2025</div>
               </div>
+              <motion.div
+                aria-hidden
+                className="absolute left-0 top-0 h-[250%] w-[250%] mix-blend-overlay will-change-transform"
+                style={{
+                  backgroundImage: 'linear-gradient(115deg, transparent 35%, #f5c54266 45%, #fff3 50%, #f5c54266 55%, transparent 65%)',
+                  x: foilX,
+                  y: foilY,
+                }}
+              />
             </div>
           </motion.div>
         </motion.div>

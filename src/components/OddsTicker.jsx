@@ -1,11 +1,12 @@
-import { useEffect, useState } from 'react'
-import { motion, useScroll, useSpring, useTransform, useVelocity } from 'motion/react'
+import { useEffect, useRef, useState } from 'react'
+import { motion, useInView, useScroll, useSpring, useTransform, useVelocity } from 'motion/react'
 import { tickerDomain, tickerSkills } from '../data'
 
 // Odds drift like a real feed: one random price moves every tick
-function useLiveOdds(list) {
+function useLiveOdds(list, live) {
   const [odds, setOdds] = useState(() => list.map(([name, price]) => ({ name, price, dir: 0, t: 0 })))
   useEffect(() => {
+    if (!live) return // off-screen: stop re-rendering prices nobody can see
     const id = setInterval(() => {
       setOdds((prev) => {
         const next = [...prev]
@@ -21,12 +22,12 @@ function useLiveOdds(list) {
       })
     }, 650)
     return () => clearInterval(id)
-  }, [])
+  }, [live])
   return odds
 }
 
-function Row({ list, reverse, dur, skew, tone }) {
-  const odds = useLiveOdds(list)
+function Row({ list, reverse, dur, skew, tone, live }) {
+  const odds = useLiveOdds(list, live)
   const items = [...odds, ...odds] // duplicated for a seamless loop
   return (
     <motion.div style={{ skewX: skew }} className="overflow-hidden border-y border-line py-3 will-change-transform">
@@ -58,14 +59,16 @@ export default function OddsTicker() {
   const { scrollY } = useScroll()
   const v = useVelocity(scrollY)
   const skew = useSpring(useTransform(v, [-2500, 2500], [10, -10]), { stiffness: 300, damping: 40 })
+  const ref = useRef(null)
+  const live = useInView(ref)
 
   return (
-    <section aria-label="Skills as live markets" className="relative z-10 -mt-[1px] space-y-2 bg-ink py-10">
+    <section ref={ref} aria-label="Skills as live markets" className={`relative z-10 -mt-[1px] space-y-2 bg-ink py-10 ${live ? '' : 'paused'}`}>
       <div className="mb-4 flex items-center gap-2 px-4 font-mono text-xs uppercase tracking-widest text-muted sm:px-8">
         <span className="live-dot h-2 w-2 rounded-full bg-neon" /> In-play markets · prices update live
       </div>
-      <Row list={tickerSkills} dur="45s" skew={skew} tone="text-text" />
-      <Row list={tickerDomain} dur="38s" reverse skew={skew} tone="text-gold" />
+      <Row list={tickerSkills} dur="45s" skew={skew} tone="text-text" live={live} />
+      <Row list={tickerDomain} dur="38s" reverse skew={skew} tone="text-gold" live={live} />
     </section>
   )
 }
