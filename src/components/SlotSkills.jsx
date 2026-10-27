@@ -3,13 +3,13 @@ import { motion, useInView, useMotionValueEvent, useScroll, useSpring, useTransf
 import { reels } from '../data'
 import SplitText from './SplitText'
 import { Burst } from './GameFx'
+import { buzz } from '../haptics'
 
-const H = 88 // px height of one reel row
+const H = 88 
 
 function Reel({ reel, progress, spins, stopAt }) {
   const strip = Array.from({ length: spins + 1 }, () => reel.items).flat()
   const target = spins * reel.items.length + reel.final
-  // centre row is the payline, so the top row is target - 1
   const raw = useTransform(progress, [0.05, stopAt], [0, -(target - 1) * H], { clamp: true })
   const y = useSpring(raw, { stiffness: 140, damping: 18 })
 
@@ -41,7 +41,7 @@ export default function SlotSkills() {
   useMotionValueEvent(scrollYProgress, 'change', (v) => {
     const hit = v > 0.82
     if (hit && !jackpot) {
-      navigator.vibrate?.([40, 60, 40, 60, 120])
+      buzz([40, 60, 40, 60, 120])
       setHits((h) => h + 1)
     }
     setJackpot(hit)

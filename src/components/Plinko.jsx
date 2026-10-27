@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { motion } from 'motion/react'
 import { PLINKO_PAYOUTS, PLINKO_ROWS, plinkoPath } from '../games'
+import { buzz } from '../haptics'
 
 const S = 32 // peg spacing
 const CX = 160
@@ -13,7 +14,6 @@ const pegs = Array.from({ length: PLINKO_ROWS }, (_, r) =>
 const tone = (x) => (x >= 3 ? '#ff3b5c' : x >= 1 ? '#f5c542' : '#7c8499')
 
 function Ball({ path, onDone }) {
-  // land on top of the peg in each row, then drop into the bucket
   const xs = [CX]
   const ys = [0]
   let k = 0
@@ -32,7 +32,6 @@ function Ball({ path, onDone }) {
   })
   return (
     <g>
-      {/* each peg the ball strikes rings out */}
       {xs.slice(1, -1).map((x, r) => (
         <motion.circle
           key={r}
@@ -41,7 +40,6 @@ function Ball({ path, onDone }) {
           fill="none"
           stroke="#f5c542"
           strokeWidth="1.5"
-          // first keyframe must be invisible: it is applied during the delay and would reveal the path
           initial={{ r: 3, opacity: 0 }}
           animate={{ r: [3, 4, 11], opacity: [0, 0.9, 0] }}
           transition={{ delay: seg * (r + 1), duration: 0.45, times: [0, 0.1, 1] }}
@@ -56,7 +54,7 @@ function Ball({ path, onDone }) {
 export default function Plinko({ wallet }) {
   const { bet, take, pay, say } = wallet
   const [balls, setBalls] = useState([])
-  const [pops, setPops] = useState([]) // payout labels rising out of buckets
+  const [pops, setPops] = useState([])
   const nextId = useRef(0)
 
   const drop = () => {
@@ -73,7 +71,7 @@ export default function Plinko({ wallet }) {
     setBalls((b) => b.filter((o) => o.id !== ball.id))
     setPops((p) => [...p, { id: ball.id, slot, x }])
     say(`Plinko ${x}× · ${net >= 0 ? '+' : '−'}${Math.abs(net)}`)
-    navigator.vibrate?.(x >= 3 ? [30, 40, 30] : 10)
+    buzz(x >= 3 ? [30, 40, 30] : 20)
   }
   const lastHit = pops.at(-1)
 

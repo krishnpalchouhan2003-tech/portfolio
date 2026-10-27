@@ -23,3 +23,12 @@ test('plinko pays back just under 100%', () => {
   assert.equal(p.length, PLINKO_ROWS)
   assert.ok(p.every((s) => s === 0 || s === 1))
 })
+
+test('buzz does not cut off a pattern that is still playing', async () => {
+  const calls = []
+  Object.defineProperty(globalThis, 'navigator', { value: { vibrate: (p) => (calls.push(p), true) }, configurable: true })
+  const { buzz } = await import('./haptics.js')
+  buzz([40, 50, 160])
+  buzz(20)
+  assert.deepEqual(calls, [[40, 50, 160]])
+})

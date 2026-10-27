@@ -2,12 +2,12 @@ import { useRef, useState } from 'react'
 import { motion, useAnimationFrame, useMotionValue, useTransform } from 'motion/react'
 import { CRASH_RATE, crashAt, crashPoint } from '../games'
 import { Burst, FloatText } from './GameFx'
+import { buzz } from '../haptics'
 
 const W = 320
 const H = 170
 const VB = [-8, -12, W + 16, H + 20]
 
-// points of the multiplier curve so far; the axes stretch once the round outlasts 5s / 2×
 function curve(m) {
   const t = Math.log(m) / CRASH_RATE
   const span = Math.max(t, 5)
@@ -18,16 +18,15 @@ function curve(m) {
   })
 }
 const line = (pts) => 'M' + pts.map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join(' L')
-// where a chart point sits inside the box, for HTML effects layered on top
 const place = ([x, y]) => ({ left: `${((x - VB[0]) / VB[2]) * 100}%`, top: `${((y - VB[1]) / VB[3]) * 100}%` })
 
 export default function Crash({ wallet }) {
   const { bet, take, pay, say } = wallet
   const m = useMotionValue(1)
   const round = useRef(null)
-  const [phase, setPhase] = useState('idle') // idle | live | bust
+  const [phase, setPhase] = useState('idle')
   const [cashed, setCashed] = useState(null)
-  const [fx, setFx] = useState(null) // { id, kind: 'boom' | 'win', pos, text }
+  const [fx, setFx] = useState(null)
 
   useAnimationFrame(() => {
     const r = round.current
@@ -40,7 +39,7 @@ export default function Crash({ wallet }) {
     setFx({ id: performance.now(), kind: 'boom', pos: place(curve(r.point).at(-1)) })
     if (!r.cashed) {
       say(`Crashed at ${r.point.toFixed(2)}× · −${r.bet}`)
-      navigator.vibrate?.([60, 30, 90])
+      buzz([60, 30, 90])
     }
   })
 
@@ -63,7 +62,7 @@ export default function Crash({ wallet }) {
     setCashed(r.cashed)
     setFx({ id: performance.now(), kind: 'win', pos: place(curve(r.cashed).at(-1)), text: `+${win - r.bet}` })
     say(`Cashed out at ${r.cashed.toFixed(2)}× · +${win - r.bet}`)
-    navigator.vibrate?.(20)
+    buzz(20)
   }
 
   const d = useTransform(m, (v) => line(curve(v)))
@@ -91,7 +90,6 @@ export default function Crash({ wallet }) {
         transition={{ duration: 0.4 }}
         className="relative overflow-hidden rounded-2xl border border-line bg-ink/60"
       >
-        {/* star grid drifts past while the round climbs */}
         <div aria-hidden className="absolute inset-0 overflow-hidden">
           <div
             className="marquee h-full w-[200%]"

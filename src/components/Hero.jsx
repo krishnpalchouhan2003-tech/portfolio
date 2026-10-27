@@ -9,6 +9,7 @@ import {
 } from 'motion/react'
 import { profile } from '../data'
 import { INTRO_DELAY } from './Intro'
+import { buzz } from '../haptics'
 
 const chips = [
   { color: '#c8102e', size: 120, left: '8%', top: '18%', speed: 900, spin: 220 },
@@ -49,22 +50,18 @@ export default function Hero() {
   const ref = useRef(null)
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end end'] })
 
-  // Scroll: card flips over and the name splits apart
   const flip = useSpring(useTransform(scrollYProgress, [0.1, 0.7], [0, 180]), { stiffness: 90, damping: 20 })
   const cardScale = useTransform(scrollYProgress, [0, 0.8], [1, 0.8])
   const leftX = useTransform(scrollYProgress, [0, 1], ['0vw', '-40vw'])
   const rightX = useTransform(scrollYProgress, [0, 1], ['0vw', '40vw'])
   const bigY = useTransform(scrollYProgress, [0, 1], ['0%', '-35%'])
-  // function form on purpose: Motion's accelerated ViewTimeline path left this stuck at opacity 0
   const fade = useTransform(scrollYProgress, (v) => Math.max(0, 1 - v / 0.35))
 
-  // Mouse: tilt + holographic sheen
   const mx = useMotionValue(0)
   const my = useMotionValue(0)
   const rx = useSpring(useTransform(my, [-0.5, 0.5], [14, -14]), { stiffness: 150, damping: 15 })
   const ry = useSpring(useTransform(mx, [-0.5, 0.5], [-16, 16]), { stiffness: 150, damping: 15 })
   const rotateY = useTransform([flip, ry], ([f, r]) => f + r)
-  // foil and glare slide as layers (transforms) instead of repainting gradients every frame
   const foilX = useTransform(mx, [-0.5, 0.5], ['0%', '-60%'])
   const foilY = useTransform(my, [-0.5, 0.5], ['0%', '-60%'])
   const glareX = useTransform(mx, [-0.5, 0.5], ['0%', '50%'])
@@ -80,7 +77,6 @@ export default function Hero() {
   }
   const onLeave = (e) => e.pointerType === 'mouse' && (mx.set(0), my.set(0))
 
-  // Touch screens: foil drifts on its own, then follows the gyroscope once it reports
   useEffect(() => {
     if (!window.matchMedia('(hover: none)').matches) return
     const a = animate(mx, [-0.4, 0.4, -0.4], { duration: 6, repeat: Infinity, ease: 'easeInOut' })
@@ -101,10 +97,9 @@ export default function Hero() {
     }
   }, [mx, my])
 
-  // Tap: dealer-style spin, and ask iOS for gyroscope access (needs a user tap)
   const onCardTap = () => {
     animate(spin, spin.get() + 360, { type: 'spring', stiffness: 60, damping: 12 })
-    navigator.vibrate?.(15)
+    buzz(25)
     const DOE = window.DeviceOrientationEvent
     if (typeof DOE?.requestPermission === 'function') DOE.requestPermission().catch(() => {})
   }
@@ -116,14 +111,12 @@ export default function Hero() {
         onPointerMove={onMove}
         onPointerLeave={onLeave}
       >
-        {/* felt-table glow */}
         <div
           aria-hidden
           className="absolute inset-0"
           style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 55%, #0d3b26 0%, transparent 70%)' }}
         />
 
-        {/* layer 1: huge outlined backdrop word, slowest */}
         <motion.div
           aria-hidden
           style={{ y: bigY }}
@@ -132,13 +125,10 @@ export default function Hero() {
           ALL IN
         </motion.div>
 
-        {/* layer 2: chips at different depths */}
         {chips.map((c, i) => (
           <Chip key={i} c={c} progress={scrollYProgress} />
         ))}
 
-        {/* layer 3: split name behind the card */}
-        {/* font size comes from name length so any name fits: stacked on mobile, split around the card on desktop */}
         <h1
           style={{
             '--fs-mob': `min(30vw, 13svh, calc(90vw / ${Math.max(profile.first.length, profile.last.length) * 0.5}))`,
@@ -154,7 +144,6 @@ export default function Hero() {
           </motion.span>
         </h1>
 
-        {/* layer 4: the card */}
         <motion.div
           initial={{ y: 120, opacity: 0, rotateZ: -12 }}
           animate={{ y: 0, opacity: 1, rotateZ: -4 }}
@@ -167,8 +156,6 @@ export default function Hero() {
             onTap={onCardTap}
             className="relative aspect-[5/7] w-[min(50vw,26svh,300px)] lg:w-[300px]"
           >
-            {/* front */}
-            {/* sizes in cqw (% of card width) so the card looks the same at every screen size */}
             <div className="card-face @container border border-white/15 bg-[#f4f1e8] text-ink shadow-[0_40px_80px_rgb(0_0_0/0.6)]">
               <div className="absolute left-[5cqw] top-[4cqw] text-center font-display leading-none text-[#c8102e]">
                 <div className="text-[12cqw] font-black">A</div>
@@ -187,7 +174,6 @@ export default function Hero() {
                   {profile.role} · {profile.domain}
                 </div>
               </div>
-              {/* holo foil + glare follow the pointer */}
               <motion.div
                 aria-hidden
                 className="absolute left-0 top-0 h-[250%] w-[250%] mix-blend-color-dodge opacity-60 will-change-transform"
@@ -205,7 +191,6 @@ export default function Hero() {
               />
             </div>
 
-            {/* back: black VIP card, gold sheen follows the same tilt as the front */}
             <div className="card-face card-back-pattern @container border border-gold/40" style={{ transform: 'rotateY(180deg)' }}>
               <div className="absolute inset-[5cqw] flex flex-col items-center justify-center rounded-[3cqw] border border-gold/45 text-center">
                 <div className="font-mono text-[5cqw] tracking-[0.4em] text-gold/80">♠ ♥ ♣ ♦</div>
@@ -241,7 +226,6 @@ export default function Hero() {
             <div className="text-text">{profile.role}</div>
             <div>{profile.domain}</div>
           </div>
-          {/* touch hint (inside the HUD so one element owns the scroll-linked fade) */}
           <div className="absolute inset-x-0 bottom-16 hidden text-center text-[10px] tracking-[0.25em] text-gold/80 pointer-coarse:block">
             Tap the card · tilt your phone
           </div>

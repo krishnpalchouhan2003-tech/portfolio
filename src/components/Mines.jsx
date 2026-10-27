@@ -2,18 +2,17 @@ import { useState } from 'react'
 import { motion } from 'motion/react'
 import { TILES, minesMultiplier, placeMines } from '../games'
 import { Burst } from './GameFx'
+import { buzz } from '../haptics'
 
 const COUNTS = [1, 3, 5, 10]
 
 export default function Mines({ wallet }) {
   const { bet, take, pay, say } = wallet
   const [count, setCount] = useState(3)
-  const [game, setGame] = useState(null) // { id, mines: Set, open: [], bet, over: null | 'lost' | 'won' }
+  const [game, setGame] = useState(null) 
   const live = game && !game.over
   const safe = game?.open.length ?? 0
-  // cash-out value while playing, otherwise what the first safe pick pays
   const mult = live && safe ? minesMultiplier(game.mines.size, safe) : minesMultiplier(live ? game.mines.size : count, 1)
-  // when a round ends, the rest of the board flips over in a ripple from the last pick
   const last = game?.open.at(-1) ?? 12
   const rippleDelay = (i) => 0.12 + Math.hypot((i % 5) - (last % 5), Math.floor(i / 5) - Math.floor(last / 5)) * 0.07
 
@@ -29,7 +28,7 @@ export default function Mines({ wallet }) {
     pay(win, x)
     setGame({ ...g, over: 'won' })
     say(`Cashed ${x.toFixed(2)}× · +${win - g.bet}`)
-    navigator.vibrate?.(20)
+    buzz(20)
   }
 
   const reveal = (i) => {
@@ -38,12 +37,12 @@ export default function Mines({ wallet }) {
     if (game.mines.has(i)) {
       setGame({ ...game, open, over: 'lost' })
       say(`Boom · −${game.bet}`)
-      navigator.vibrate?.([100, 40, 100])
+      buzz([100, 40, 100])
       return
     }
     if (open.length === TILES - game.mines.size) return cashOut({ ...game, open })
     setGame({ ...game, open })
-    navigator.vibrate?.(8)
+    buzz(20)
   }
 
   return (

@@ -5,6 +5,7 @@ import { Burst, Count, FloatText } from './GameFx'
 import Crash from './Crash'
 import Plinko from './Plinko'
 import Mines from './Mines'
+import { buzz } from '../haptics'
 
 const START = 1000
 const STAKES = [
@@ -24,11 +25,10 @@ export default function HouseGames() {
   const [bet, setBet] = useState(10)
   const [tab, setTab] = useState('crash')
   const [msg, setMsg] = useState('Demo chips only. No real money, no sign-up.')
-  const [wins, setWins] = useState([]) // "+chips" floating out of the balance
-  const [party, setParty] = useState(null) // big-win celebration
+  const [wins, setWins] = useState([])
+  const [party, setParty] = useState(null)
   const fxId = useRef(0)
 
-  // one wallet shared by every game
   const wallet = {
     bet,
     take: () => {
@@ -45,7 +45,7 @@ export default function HouseGames() {
       if (n > 0) setWins((w) => [...w, { id, text: `+${n.toLocaleString()}` }])
       if (x >= 5) {
         setParty({ id, x })
-        navigator.vibrate?.([40, 50, 40, 50, 160])
+        buzz([40, 50, 40, 50, 160])
       }
     },
     say: setMsg,
@@ -76,7 +76,6 @@ export default function HouseGames() {
               </FloatText>
             </div>
           )}
-          {/* big tap targets so it's obvious these are games to pick */}
           <div role="tablist" aria-label="Games" className="grid grid-cols-3 gap-2">
             {GAMES.map(([key, label, , icon]) => (
               <motion.button
@@ -152,7 +151,6 @@ export default function HouseGames() {
             {GAMES.find(([key]) => key === tab)[4]}
           </motion.p>
 
-          {/* every game stays mounted so a live round survives a tab switch */}
           <div className="mt-3">
             {GAMES.map(([key, , Game]) => (
               <motion.div

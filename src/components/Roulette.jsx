@@ -1,8 +1,8 @@
 import { useRef, useState } from 'react'
 import { AnimatePresence, motion, useMotionValueEvent, useScroll, useSpring, useTransform } from 'motion/react'
 import { experience } from '../data'
+import { buzz } from '../haptics'
 
-// European wheel order
 const ORDER = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26]
 const SEG = 360 / ORDER.length
 const R_OUT = 200
@@ -47,7 +47,6 @@ function Wheel({ rotate, ball }) {
         <circle r="34" fill="#f5c542" />
         <circle r="14" fill="#7a5d14" />
       </motion.svg>
-      {/* ball rides the track the other way */}
       <motion.div style={{ rotate: ball }} className="pointer-events-none absolute inset-0 will-change-transform">
         <span className="absolute left-1/2 top-[14%] h-3.5 w-3.5 -translate-x-1/2 rounded-full bg-white shadow-[0_0_10px_white]" />
       </motion.div>
@@ -64,7 +63,7 @@ export default function Roulette() {
   const [active, setActive] = useState(0)
   useMotionValueEvent(scrollYProgress, 'change', (v) => {
     const next = Math.min(experience.length - 1, Math.floor(v * experience.length))
-    if (next !== active) navigator.vibrate?.(25) // ball drops into a pocket
+    if (next !== active) buzz(25)
     setActive(next)
   })
   const job = experience[active]
