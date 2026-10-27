@@ -24,6 +24,8 @@ body {
   background: var(--color-ink);
   color: var(--color-text);
   font-family: var(--font-body);
+  /* mobile Chrome ignores the html clip and widens the page for off-screen chips/cards, breaking fixed and sticky */
+  overflow-x: clip;
 }
 
 ::selection {
