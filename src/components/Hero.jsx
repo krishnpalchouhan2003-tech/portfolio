@@ -10,6 +10,7 @@ import {
 import { profile } from '../data'
 import { INTRO_DELAY } from './Intro'
 import { buzz } from '../haptics'
+import { Digits } from './GameFx'
 
 const chips = [
   { color: '#c8102e', size: 120, left: '8%', top: '18%', speed: 900, spin: 220 },
@@ -236,7 +237,7 @@ export default function Hero() {
             Scroll to deal
           </div>
           <div className="text-right">
-            <div className="font-display text-4xl font-black text-gold">{profile.years}</div>
+            <div className="font-display text-4xl font-black text-gold"><Digits value={profile.years} /></div>
             Years in iGaming
           </div>
         </motion.div>

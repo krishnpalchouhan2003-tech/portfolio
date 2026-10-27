@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { motion } from 'motion/react'
 import { profile } from '../data'
 import SplitText from './SplitText'
+import useMagnet from './useMagnet'
 
 const YEAR = new Date().getFullYear()
 
@@ -36,6 +37,7 @@ const stakes = [
 export default function BetSlip() {
   const [stake, setStake] = useState(0)
   const subject = encodeURIComponent(`${stakes[stake][0]} opportunity`)
+  const magnet = useMagnet(0.2)
 
   return (
     <section id="contact" className="relative overflow-hidden px-4 py-32 sm:px-8">
@@ -108,12 +110,15 @@ export default function BetSlip() {
               <span className="text-ink/60">Potential return</span>
               <span className="text-right font-semibold">{stakes[stake][1]}</span>
             </div>
-            <a
+            <motion.a
+              {...magnet}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               href={`mailto:${profile.email}?subject=${subject}`}
-              className="mt-5 block rounded-xl bg-neon py-4 text-center font-display text-2xl font-black uppercase tracking-wide text-ink transition-transform hover:scale-[1.02] active:scale-[0.98]"
+              className="mt-5 block rounded-xl bg-neon py-4 text-center font-display text-2xl font-black uppercase tracking-wide text-ink"
             >
               Place bet →
-            </a>
+            </motion.a>
             <div className="mt-4 grid grid-cols-3 gap-2">
               {links.map(({ label, href, color, icon }) => (
                 <motion.a

@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { animate, motion, useMotionValue, useTransform } from 'motion/react'
+import { useRef, useState } from 'react'
+import { motion, useInView } from 'motion/react'
 
 // Particles flying out from the parent's centre. Only transform/opacity, so it stays on the GPU.
 export function Burst({ colors, count = 14, spread = 70, size = 7 }) {
@@ -42,13 +42,41 @@ export function FloatText({ children, className = '', onDone }) {
   )
 }
 
-// Number that rolls to its new value
+// Number that rolls to its new value, digit by digit like a slot reel
 export function Count({ value, className }) {
-  const mv = useMotionValue(value)
-  const text = useTransform(mv, (v) => Math.round(v).toLocaleString())
-  useEffect(() => {
-    const a = animate(mv, value, { duration: 0.6, ease: 'easeOut' })
-    return () => a.stop()
-  }, [mv, value])
-  return <motion.span className={className}>{text}</motion.span>
+  return <Digits value={value.toLocaleString()} className={className} />
 }
+
+// Each digit is a 0–9 strip that spins to its value; starts at 0 and rolls in when first seen
+export function Digits({ value, className = '' }) {
+  const ref = useRef(null)
+  const seen = useInView(ref, { once: true })
+  const chars = String(value).split('')
+  return (
+    <span ref={ref} aria-label={value} className={`inline-flex ${className}`}>
+      {chars.map((ch, i) =>
+        // keyed from the right so 1,000 -> 990 keeps the units reel spinning instead of remounting
+        /\d/.test(ch) ? <Digit key={chars.length - i} n={seen ? +ch : 0} /> : <span key={chars.length - i} aria-hidden>{ch}</span>,
+      )}
+    </span>
+  )
+}
+
+function Digit({ n }) {
+  return (
+    <span aria-hidden className="relative inline-block h-[1em] overflow-hidden leading-none">
+      <span className="invisible">0</span>
+      <motion.span
+        className="absolute inset-x-0 top-0 flex flex-col"
+        animate={{ y: `${-n}em` }}
+        transition={{ type: 'spring', stiffness: 70, damping: 14 }}
+      >
+        {DIGITS.map((d) => (
+          <span key={d} className="h-[1em]">{d}</span>
+        ))}
+      </motion.span>
+    </span>
+  )
+}
+
+const DIGITS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]

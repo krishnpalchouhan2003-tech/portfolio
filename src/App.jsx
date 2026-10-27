@@ -13,6 +13,7 @@ import PlayFab from './components/PlayFab'
 import Intro from './components/Intro'
 import Cursor from './components/Cursor'
 import PlaceBets from './components/PlaceBets'
+import ChipToss from './components/ChipToss'
 
 export default function App() {
   const reduce = useReducedMotion()
@@ -23,11 +24,14 @@ export default function App() {
         <Hero />
         <OddsTicker />
         <Manifesto />
+        <ChipToss />
         <Projects />
         <SlotSkills />
         <Roulette />
+        <ChipToss />
         <PlaceBets />
         <HouseGames />
+        <ChipToss />
         <BetSlip />
       </main>
       <PlayFab />
