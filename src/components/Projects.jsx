@@ -5,15 +5,20 @@ import SplitText from './SplitText'
 import { Digits } from './GameFx'
 import useMagnet from './useMagnet'
 
+const clamp = (v) => Math.max(0, Math.min(1, v))
+const REST = 0.35 // share of each card's scroll spent resting on the stack before the next one moves
+
 function MatchCard({ p, i, total, progress }) {
-  // earlier cards shrink and darken as later ones slide over them
-  const start = i / total
-  const scale = useTransform(progress, [start, 1], [1, 1 - (total - i) * 0.05])
-  // function form keeps Motion off its accelerated scroll-timeline path (it misreads sticky targets)
-  const dim = useTransform(progress, (v) => (i === total - 1 ? 0 : Math.max(0, Math.min(1, (v - start) / (1 - start))) * 0.6))
-  // while sliding in, the card is tipped back in 3D and slightly turned, then lands flat
   const span = 1 / Math.max(1, total - 1)
-  const enter = useTransform(progress, [(i - 1) * span, i * span], [1, 0])
+  // function form keeps Motion off its accelerated scroll-timeline path (it misreads sticky targets)
+  // 1 = below the screen, 0 = landed on the stack; the first card starts landed
+  const enter = useTransform(progress, (v) => (i === 0 ? 0 : clamp(1 - (v - (i - 1 + REST) * span) / ((1 - REST) * span))))
+  // how many cards have landed on top of this one: each pushes it back and darkens it
+  const covered = useTransform(progress, (v) => Math.max(0, (v - (i + REST) * span) / ((1 - REST) * span)))
+  const y = useTransform(enter, (e) => e * window.innerHeight)
+  const scale = useTransform(covered, (c) => 1 - c * 0.04)
+  const dim = useTransform(covered, (c) => Math.min(1, c) * 0.6)
+  // while sliding in, the card is tipped back in 3D and slightly turned, then lands flat
   const rotateX = useTransform(enter, [0, 1], [0, 28])
   const rotateZ = useTransform(enter, [0, 1], [0, i % 2 ? 5 : -5])
   // mouse tilt on top of the scroll tilt, with a sheen that follows the pointer (-0.5..0.5 across the card)
@@ -41,12 +46,11 @@ function MatchCard({ p, i, total, progress }) {
   const codeMagnet = useMagnet()
 
   return (
-    <div className="sticky top-0 flex h-svh items-center justify-center px-4 [perspective:1400px] sm:px-8">
       <motion.article
-        style={{ scale, rotateX: tiltX, rotateY, rotateZ, top: `${i * 28}px`, '--accent': p.accent }}
+        style={{ y, scale, rotateX: tiltX, rotateY, rotateZ, top: `calc(var(--peek) * ${i})`, '--accent': p.accent }}
         onPointerMove={onMove}
         onPointerLeave={onLeave}
-        className="relative w-full max-w-5xl origin-top will-change-transform overflow-hidden rounded-3xl border border-line bg-panel shadow-[0_-20px_60px_rgb(0_0_0/0.5)]"
+        className="absolute inset-x-0 mx-auto w-full max-w-5xl origin-top will-change-transform overflow-hidden rounded-3xl border border-line bg-panel shadow-[0_-20px_60px_rgb(0_0_0/0.5)]"
       >
         {/* scoreboard header */}
         <div className="flex items-center justify-between border-b border-line px-5 py-3 font-mono text-[11px] uppercase tracking-widest sm:px-8">
@@ -64,7 +68,7 @@ function MatchCard({ p, i, total, progress }) {
           <div>
             <h3 className="font-display text-4xl font-black uppercase leading-[0.9] sm:text-7xl">{p.title}</h3>
             <p className="mt-4 max-w-xl text-sm text-muted sm:mt-5 sm:text-base">{p.blurb}</p>
-            <ul className="mt-6 flex flex-wrap gap-2">
+            <ul className="mt-6 flex flex-wrap gap-2 [@media(max-height:700px)]:hidden">
               {p.stack.map((s) => (
                 <li key={s} className="rounded-full border border-line px-3 py-1 font-mono text-xs text-text/80">
                   {s}
@@ -112,7 +116,6 @@ function MatchCard({ p, i, total, progress }) {
         <motion.div aria-hidden style={{ background: sheen, opacity: hover }} className="pointer-events-none absolute inset-0" />
         <motion.div aria-hidden style={{ opacity: dim }} className="pointer-events-none absolute inset-0 bg-ink will-change-[opacity]" />
       </motion.article>
-    </div>
   )
 }
 
@@ -121,18 +124,21 @@ export default function Projects() {
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end end'] })
 
   return (
-    <section id="work" className="relative overflow-x-clip">
-      {/* clip, not hidden: tilted cards poke past the edge and widen the phone viewport, but sticky must keep working */}
-      <div className="flex items-end justify-between px-4 pb-6 sm:px-8">
-        <h2 className="font-display text-6xl font-black uppercase leading-none sm:text-8xl"><SplitText text="Fixtures" /></h2>
-        <span className="font-mono text-xs uppercase tracking-widest text-muted">
-          {String(projects.length).padStart(2, '0')} markets open
-        </span>
-      </div>
-      <div ref={ref}>
-        {projects.map((p, i) => (
-          <MatchCard key={p.code} p={p} i={i} total={projects.length} progress={scrollYProgress} />
-        ))}
+    // tall track; the heading and the card stack stay pinned while cards land one by one
+    <section id="work" ref={ref} className="relative" style={{ height: `${projects.length * 70 + 30}svh` }}>
+      <div className="sticky top-0 flex h-svh flex-col overflow-x-clip px-4 pt-20 sm:px-8 sm:pt-24">
+        {/* clip, not hidden: tilted cards poke past the edge and widen the phone viewport */}
+        <div className="flex items-end justify-between pb-4 sm:pb-6">
+          <h2 className="font-display text-6xl font-black uppercase leading-none sm:text-8xl"><SplitText text="Fixtures" /></h2>
+          <span className="font-mono text-xs uppercase tracking-widest text-muted">
+            {String(projects.length).padStart(2, '0')} markets open
+          </span>
+        </div>
+        <div className="relative flex-1 [--peek:14px] [perspective:1400px] sm:[--peek:24px]">
+          {projects.map((p, i) => (
+            <MatchCard key={p.code} p={p} i={i} total={projects.length} progress={scrollYProgress} />
+          ))}
+        </div>
       </div>
     </section>
   )

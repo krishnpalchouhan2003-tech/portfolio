@@ -41,7 +41,7 @@ export default function SplitText({ text, className = '', delay = 0 }) {
             transition={{ duration: 0.7, delay: delay + i * STAGGER, ease: [0.22, 1, 0.36, 1] }}
           >
             {/* the real letter always holds the width, so rolling glyphs never shift the line */}
-            <span className={rolling ? 'invisible' : ''}>{ch === ' ' ? ' ' : ch}</span>
+            <span className={rolling ? 'invisible' : ''}>{ch === ' ' ? '\u00a0' : ch}</span>
             {rolling && (
               <span className="absolute inset-0 text-center">{GLYPHS[Math.floor(Math.random() * GLYPHS.length)]}</span>
             )}
