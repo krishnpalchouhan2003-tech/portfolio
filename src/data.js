@@ -74,15 +74,15 @@ export const projects = [
   {
     code: 'PR-04',
     league: 'Personal',
-    year: 'Side project',
-    title: 'Mehandi Studio Site',
+    year: 'Full stack',
+    title: 'Door Trust',
     blurb:
-      'Booking site for a mehendi artist: bridal, groom and baby-shower design galleries with category filters, an image viewer and service packages.',
-    stack: ['React', 'React Router', 'Tailwind', 'Vite'],
-    markets: [['Galleries', '4'], ['Routing', 'SPA'], ['Hosting', 'Vercel']],
-    accent: '#ff3b5c',
-    live: 'https://mehandi-webside.vercel.app',
-    repo: 'https://github.com/krishnpalchouhan2003-tech/Mehandi-webside',
+      'Rental platform where tenants and landlords review each other. Reviews unlock only after a verified tenancy and stay sealed until both sides post. Listings with a map view, real-time chat with read receipts, and live notifications over Socket.io.',
+    stack: ['React', 'Node', 'Express', 'MongoDB', 'Socket.io', 'Tailwind'],
+    markets: [['Reviews', 'Mutual'], ['Chat', 'Live'], ['API tests', '25']],
+    accent: '#ff7a45',
+    live: 'https://doortrust.onrender.com',
+    repo: null, // private repo
   },
 ]
 
