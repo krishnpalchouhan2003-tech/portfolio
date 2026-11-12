@@ -86,7 +86,7 @@ function MatchCard({ p, i, total, progress }) {
                   Code ↗
                 </motion.a>
               )}
-              {!p.live && !p.repo && <span className="px-1 py-2 text-muted">Internal · private</span>}
+              {!p.live && !p.repo && <span className="px-1 py-2 text-muted">Private · under NDA</span>}
             </div>
           </div>
 
